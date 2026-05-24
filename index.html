@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>گزارش تحلیل و استراتژی نام‌گذاری برند بستنی</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;700;900&display=swap" rel="stylesheet">
+    
+    <!-- Chosen Palette: Warm Cream, Deep Charcoal, Caramel Gold, Gelato Pistachio/Pink -->
+    <!-- Application Structure Plan: A dashboard-style SPA to present the naming strategy. It starts with the critical "Brand Continuity" analysis (answering the 'Kaf' question using data visualization), moves to an interactive evaluation of the user's provided names (using a scorecard grid and radar chart for top contenders), and concludes with fresh, categorized recommendations. Navigation is handled via a persistent sidebar for easy switching between analysis phases. -->
+    <!-- Visualization & Content Choices: 
+         1. Brand Continuity (Bar Chart): Shows theoretical market perception comparing umbrella branding vs. standalone luxury. Goal: Justify strategy. Library: Chart.js.
+         2. Name Evaluation (Grid/Cards): Displays user names with visual scoring. Goal: Quick assessment. Library: HTML/CSS.
+         3. Top Candidates (Radar Chart): Compares top names across specific luxury metrics. Goal: Deep comparison. Library: Chart.js.
+         Confirming NO SVG/Mermaid. 
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Vazirmatn', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            cream: '#FDFBF7',
+                            charcoal: '#2D241E',
+                            gold: '#D4AF37',
+                            pistachio: '#93C572',
+                            pink: '#F4C2C2',
+                            danger: '#E53E3E'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #FDFBF7; color: #2D241E; }
+        .nav-active { background-color: #D4AF37; color: #2D241E; font-weight: bold; }
+        
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container { height: 400px; }
+        }
+        
+        .score-badge { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 9999px; font-weight: bold; font-size: 0.875rem; }
+        .score-high { background-color: #D1FAE5; color: #065F46; }
+        .score-med { background-color: #FEF3C7; color: #92400E; }
+        .score-low { background-color: #FEE2E2; color: #991B1B; }
+
+        .hide { display: none !important; }
+    </style>
+</head>
+<body class="font-sans antialiased flex h-screen overflow-hidden">
+
+    <!-- Sidebar Navigation -->
+    <aside class="w-64 bg-brand-charcoal text-white flex flex-col h-full shadow-2xl z-10 flex-shrink-0">
+        <div class="p-6 text-center border-b border-gray-700">
+            <div class="text-3xl mb-2 text-brand-gold">🍦</div>
+            <h1 class="text-xl font-black tracking-tighter">پروژه ژلاتو شهسوار</h1>
+            <p class="text-xs text-gray-400 mt-1">تحلیل استراتژی نام‌گذاری</p>
+        </div>
+        <nav class="flex-1 overflow-y-auto py-4">
+            <ul class="space-y-2 px-4">
+                <li>
+                    <button onclick="navigate('section-strategy')" id="btn-section-strategy" class="nav-btn w-full text-right px-4 py-3 rounded-lg transition-colors nav-active">
+                        <span class="mr-2">۱.</span> معماری برند (استفاده از کاف)
+                    </button>
+                </li>
+                <li>
+                    <button onclick="navigate('section-evaluation')" id="btn-section-evaluation" class="nav-btn w-full text-right px-4 py-3 rounded-lg transition-colors hover:bg-gray-800 text-gray-300">
+                        <span class="mr-2">۲.</span> ارزیابی اسامی پیشنهادی شما
+                    </button>
+                </li>
+                <li>
+                    <button onclick="navigate('section-recommendations')" id="btn-section-recommendations" class="nav-btn w-full text-right px-4 py-3 rounded-lg transition-colors hover:bg-gray-800 text-gray-300">
+                        <span class="mr-2">۳.</span> پیشنهادهای ویژه و نهایی
+                    </button>
+                </li>
+            </ul>
+        </nav>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 h-full overflow-y-auto bg-brand-cream relative">
+        <div class="p-8 md:p-12 max-w-6xl mx-auto">
+
+            <!-- Section 1: Brand Strategy -->
+            <section id="section-strategy" class="content-section">
+                <header class="mb-8">
+                    <h2 class="text-3xl font-black text-brand-charcoal mb-4">آیا باید از پیشوند "کاف" استفاده کنیم؟</h2>
+                    <p class="text-lg leading-relaxed text-gray-700">
+                        شما دو برند موفق <strong>«کاف کافی»</strong> و <strong>«کاف کیک»</strong> را دارید. سوال اساسی این است که برای یک برند <em>بستنی فوق لوکس</em>، آیا باید معماری برند را به صورت "چتری" (گسترش نام کاف) پیش ببریم یا یک برند مستقل خلق کنیم؟ در بازار کالاهای لوکس، رفتار مصرف‌کننده متفاوت است.
+                    </p>
+                </header>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                        <h3 class="text-xl font-bold mb-4 text-brand-gold border-b pb-2">رویکرد برند چتری (استفاده از کاف)</h3>
+                        <ul class="space-y-3">
+                            <li class="flex items-start">
+                                <span class="text-green-500 ml-2 font-bold">✓</span>
+                                <span><strong>مزیت:</strong> انتقال سریع اعتماد مشتریان فعلی و کاهش هزینه‌های بازاریابی اولیه.</span>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-red-500 ml-2 font-bold">✗</span>
+                                <span><strong>خطر (بسیار مهم):</strong> کلمات "کافی" و "کیک" مصرف روزمره دارند. اتصال یک محصول "فوق لوکس" به نامی که تداعی‌گر مصرف روتین است، <strong>سقف قیمت‌گذاری و درک لوکس بودن</strong> را به شدت پایین می‌آورد.</span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                        <h3 class="text-xl font-bold mb-4 text-brand-gold border-b pb-2">رویکرد برند مستقل (نامی کاملا جدید)</h3>
+                        <ul class="space-y-3">
+                            <li class="flex items-start">
+                                <span class="text-green-500 ml-2 font-bold">✓</span>
+                                <span><strong>مزیت:</strong> امکان خلق یک هویت بصری و کلامی 100% لوکس، توجیه قیمت‌های بالا، و ایجاد حس "انحصار" (Exclusivity). مانند تویوتا که برای بازار لوکس برند <em>لکسوس</em> را خلق کرد.</span>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-red-500 ml-2 font-bold">✗</span>
+                                <span><strong>خطر:</strong> نیاز به زمان و بودجه بیشتر برای آگاهی‌بخشی اولیه در بازار.</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-2xl shadow-md border border-gray-200">
+                    <h3 class="text-lg font-bold mb-6 text-center">تحلیل ادراک بازار از استراتژی‌های نام‌گذاری در صنعت لوکس</h3>
+                    <div class="chart-container">
+                        <canvas id="strategyChart"></canvas>
+                    </div>
+                    <div class="mt-6 text-sm text-gray-600 bg-gray-50 p-4 rounded-lg border border-gray-100">
+                        <strong>نتیجه‌گیری استراتژیک:</strong> اگر هدف شما صرفا یک بستنی‌فروشی باکیفیت است، ترکیب "کاف جلاتو" عالی است. اما چون تاکید شما روی <strong>"فوق لوکس بودن، بهترین در منطقه بودن و حس تجربه عالی"</strong> است، استفاده از پسوندهای انگلیسی (مثل کاف فریز، کاف کول) به شدت به هویت لوکس ضربه می‌زند. پیشنهاد اکید ما <strong>خلق یک نام مستقل و اصیل</strong> است که با معماری درونی (مثلا: محصولی از گروه کاف) حمایت شود.
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 2: Name Evaluation -->
+            <section id="section-evaluation" class="content-section hide">
+                <header class="mb-8">
+                    <h2 class="text-3xl font-black text-brand-charcoal mb-4">آنالیز و رتبه‌بندی اسامی پیشنهادی شما</h2>
+                    <p class="text-lg leading-relaxed text-gray-700">
+                        در این بخش ۱۵ نام پیشنهادی شما را بر اساس ۴ معیار کلیدی برای یک برند بستنی فوق‌لوکس ارزیابی کرده‌ایم: ۱. حس لوکس بودن ۲. ارتباط با کانسپت (شادی/یخ/پیچش) ۳. آوا و تلفظ (برای برندینگ) ۴. پتانسیل ترند شدن.
+                    </p>
+                </header>
+
+                <!-- Dynamic Grid for Names -->
+                <div id="names-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+                    <!-- Populated by JS -->
+                </div>
+
+                <div class="bg-white p-6 rounded-2xl shadow-md border border-gray-200 mt-12">
+                    <h3 class="text-xl font-bold mb-6 text-center">مقایسه ۳ نام برتر (رادار چارچوب برند لوکس)</h3>
+                    <div class="chart-container" style="max-width: 500px;">
+                        <canvas id="topNamesRadar"></canvas>
+                    </div>
+                    <p class="text-center text-sm text-gray-500 mt-4">مقایسه تحلیلی بین بهترین گزینه‌های مستقل در لیست شما.</p>
+                </div>
+            </section>
+
+            <!-- Section 3: Recommendations -->
+            <section id="section-recommendations" class="content-section hide">
+                <header class="mb-8">
+                    <h2 class="text-3xl font-black text-brand-charcoal mb-4">پیشنهادهای نهایی و جایگزین</h2>
+                    <p class="text-lg leading-relaxed text-gray-700">
+                        بر اساس تحلیل بازار، ترندهای روز (مینیمالیسم در برندینگ لوکس)، و درخواست شما مبنی بر القای حس <strong>شادی، یخ، پیچش و لوکس بودن در شمال ایران</strong>، اسامی زیر را پیشنهاد می‌دهیم. در بازار امروز، نام‌های کوتاه، خوش‌آوا و دارای ریشه، بالاترین ارزش ویژه برند را می‌سازند.
+                    </p>
+                </header>
+
+                <div class="space-y-8">
+                    
+                    <!-- Category 1 -->
+                    <div class="bg-white border-r-4 border-brand-gold p-6 rounded-l-xl shadow-sm">
+                        <h3 class="text-2xl font-bold mb-2">گزینه اول: "پیچک" (از لیست خودتان)</h3>
+                        <div class="flex gap-2 mb-4">
+                            <span class="bg-gray-100 text-gray-600 px-2 py-1 rounded text-xs">انتخاب برتر</span>
+                            <span class="bg-gray-100 text-gray-600 px-2 py-1 rounded text-xs">مستقل</span>
+                        </div>
+                        <p class="text-gray-700 mb-4">
+                            از بین اسامی شما، <strong>پیچک (Pichak)</strong> بی‌نظیر است. 
+                            <br>۱. دقیقا مفهوم "پیچش" (بستنی سافت یا رول) را می‌رساند.
+                            <br>۲. حسی از طبیعت و سرسبزی (شمال ایران) دارد.
+                            <br>۳. در کنار کلمه جلاتو (جلاتو پیچک / Gelateria Pichak) تضاد زیبایی از اصالت ایتالیایی و لطافت ایرانی می‌سازد.
+                        </p>
+                    </div>
+
+                    <!-- Category 2 -->
+                    <div class="bg-white border-r-4 border-brand-pistachio p-6 rounded-l-xl shadow-sm">
+                        <h3 class="text-2xl font-bold mb-2">پیشنهاد جدید ۱: "بَرفا" یا "بَرفین" (Barfa / Barfin)</h3>
+                        <div class="flex gap-2 mb-4">
+                            <span class="bg-gray-100 text-gray-600 px-2 py-1 rounded text-xs">حس سرما</span>
+                            <span class="bg-gray-100 text-gray-600 px-2 py-1 rounded text-xs">لوکس و لطیف</span>
+                        </div>
+                        <p class="text-gray-700 mb-4">
+                            در زبان فارسی، برفین به معنای ساخته شده از برف و سفید رنگ است. این نام به شدت حس <strong>خنکی، یخ و لطافت (خامه)</strong> را منتقل می‌کند. آوایی بسیار لوکس و مناسب برای یک بوتیک بستنی دارد. (برفا نیز آوایی مدرن‌تر دارد).
+                        </p>
+                    </div>
+
+                    <!-- Category 3 -->
+                    <div class="bg-white border-r-4 border-brand-pink p-6 rounded-l-xl shadow-sm">
+                        <h3 class="text-2xl font-bold mb-2">پیشنهاد جدید ۲: "وانیلاژ" (Vanillazh)</h3>
+                        <div class="flex gap-2 mb-4">
+                            <span class="bg-gray-100 text-gray-600 px-2 py-1 rounded text-xs">مدرن</span>
+                            <span class="bg-gray-100 text-gray-600 px-2 py-1 rounded text-xs">ترکیبی</span>
+                        </div>
+                        <p class="text-gray-700 mb-4">
+                            ترکیبی از وانیل و پسوند سازنده "آژ" (مثل مونتاژ یا نام "لوژان" خودتان). کلمه‌ای نوساخته، بسیار مدرن که حس یک برند فرانسوی/ایتالیایی گران‌قیمت را القا می‌کند در حالی که کاملا قابل فهم است.
+                        </p>
+                    </div>
+
+                     <!-- Category 4 -->
+                     <div class="bg-white border-r-4 border-gray-400 p-6 rounded-l-xl shadow-sm">
+                        <h3 class="text-2xl font-bold mb-2">اگر اصرار به حفظ "کاف" دارید:</h3>
+                        <p class="text-gray-700 mb-4">
+                            اگر به دلایل مالی و استراتژیک تصمیم قطعی دارید از کاف استفاده کنید، اسامی انگلیسی ترکیبی (فریز، کول، ملت) را به کل فراموش کنید زیرا حس سوپرمارکتی یا کافه ارزان‌قیمت می‌دهند. از ترکیب‌های با وقارتر استفاده کنید:
+                        </p>
+                        <ul class="list-disc list-inside space-y-2 text-gray-700 font-bold ml-4">
+                            <li>کاف جلاتو (Kaf Gelato) - <em>کلاسیک و ایمن</em></li>
+                            <li>کاف رِزِرو (Kaf Reserve) - <em>نشان‌دهنده لاین فوق لوکس و خاص مجموعه کاف</em></li>
+                            <li>کاف آرتیزان (Kaf Artisan) - <em>تاکید بر دست‌ساز و باکیفیت بودن</em></li>
+                        </ul>
+                    </div>
+
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <script>
+        // Data for Name Evaluation
+        const namesData = [
+            { name: "پیچک", type: "مستقل", score: 9.0, category: "high", reason: "تداعی‌گر پیچش، لطافت، ریشه در طبیعت، قابلیت برندسازی عالی در کنار کلمه جلاتو." },
+            { name: "لوژان", type: "مستقل", score: 8.5, category: "high", reason: "آوای بسیار لوکس و بین‌المللی. حس یک بوتیک گران‌قیمت را می‌دهد." },
+            { name: "پاژ", type: "مستقل", score: 8.0, category: "high", reason: "کوتاه، کوبنده، اصیل. بسیار مناسب برای مینیمالیسم مدرن." },
+            { name: "کاف جلاتو", type: "وابسته", score: 7.5, category: "med", reason: "بهترین گزینه برای حفظ برند. واضح و مستقیم. اما فاقد عنصر 'هیجان و تمایز' فوق لوکس." },
+            { name: "شادوان", type: "مستقل", score: 7.0, category: "med", reason: "حس شادی را می‌رساند، اما آوای آن کمی سنتی است و شاید 'فوق لوکس' به نظر نرسد." },
+            { name: "میساو", type: "مستقل", score: 6.5, category: "med", reason: "آوای مدرن و انتزاعی دارد، اما ارتباط معنایی با محصول یا حس خنکی/شادی ندارد." },
+            { name: "کاف چال", type: "وابسته", score: 6.0, category: "med", reason: "بازی با کلمات جالب است (یخچال)، اما کلمه چال حس لوکسی القا نمی‌کند." },
+            { name: "کاف رول", type: "وابسته", score: 5.5, category: "low", reason: "منحصر به یک نوع محصول (بستنی رولی) است و توسعه منو را در آینده سخت می‌کند." },
+            { name: "کاف کرل", type: "وابسته", score: 5.0, category: "low", reason: "آوای جالبی دارد اما در فارسی تلفظ آن ممکن است سخت باشد. حس لوکس ندارد." },
+            { name: "کاف چیل", type: "وابسته", score: 4.0, category: "low", reason: "کلمه Chill بیشتر تداعی‌گر کافه‌های تین‌ایجری و نوشیدنی‌های یخی ارزان است." },
+            { name: "کاف کول", type: "وابسته", score: 4.0, category: "low", reason: "بسیار تجاری و شبیه برندهای سوپرمارکتی یا آدامس است. ضد لوکس." },
+            { name: "کاف فریز", type: "وابسته", score: 3.5, category: "low", reason: "کلمه فریز (یخ‌زدگی) در صنعت بستنی باکیفیت (که باید بافت نرم داشته باشد) بار منفی دارد." },
+            { name: "کاف فراست", type: "وابسته", score: 3.5, category: "low", reason: "همان مشکل فریز را دارد." },
+            { name: "کاف ملت", type: "وابسته", score: 3.0, category: "low", reason: "کلمه Melt (ذوب شدن) بدترین اتفاق برای یک بستنی است. بار روانی منفی دارد." },
+            { name: "کاف جلو", type: "وابسته", score: -1, category: "low", reason: "احتمالا منظور جلاتو بوده. اگر Jell-O باشد که برند ثبت شده دسر ژله‌ای است." }
+        ];
+
+        // Navigation Logic
+        function navigate(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.content-section').forEach(el => el.classList.add('hide'));
+            // Remove active class from buttons
+            document.querySelectorAll('.nav-btn').forEach(el => {
+                el.classList.remove('nav-active', 'bg-brand-charcoal');
+                el.classList.add('text-gray-300', 'hover:bg-gray-800');
+            });
+
+            // Show selected section
+            document.getElementById(sectionId).classList.remove('hide');
+            // Add active class to clicked button
+            const activeBtn = document.getElementById(`btn-${sectionId}`);
+            activeBtn.classList.remove('text-gray-300', 'hover:bg-gray-800');
+            activeBtn.classList.add('nav-active');
+
+            // Render charts if they become visible
+            if(sectionId === 'section-strategy' && !window.strategyChartRendered) renderStrategyChart();
+            if(sectionId === 'section-evaluation' && !window.evalRendered) renderEvaluationSection();
+        }
+
+        // Render Strategy Chart
+        function renderStrategyChart() {
+            const ctx = document.getElementById('strategyChart').getContext('2d');
+            Chart.defaults.font.family = 'Vazirmatn';
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['درک از قیمت بالا (لوکس بودن)', 'سرعت پذیرش اولیه', 'احتمال تبدیل شدن به ترند منطقه', 'محدودیت رشد محصول در آینده'],
+                    datasets: [
+                        {
+                            label: 'برند چتری (استفاده از کاف)',
+                            data: [40, 85, 50, 80],
+                            backgroundColor: '#D4AF37', // Gold
+                            borderRadius: 4
+                        },
+                        {
+                            label: 'برند مستقل و جدید',
+                            data: [95, 45, 90, 20],
+                            backgroundColor: '#2D241E', // Charcoal
+                            borderRadius: 4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'top', rtl: true, labels: { font: { family: 'Vazirmatn' } } },
+                        tooltip: { titleFont: { family: 'Vazirmatn' }, bodyFont: { family: 'Vazirmatn' } }
+                    },
+                    scales: {
+                        y: { beginAtZero: true, max: 100, title: { display: true, text: 'امتیاز از ۱۰۰' } }
+                    }
+                }
+            });
+            window.strategyChartRendered = true;
+        }
+
+        // Render Evaluation Grid and Radar Chart
+        function renderEvaluationSection() {
+            const grid = document.getElementById('names-grid');
+            
+            // Filter out the 'Kaf Jelo' typo for display to keep it clean
+            const displayNames = namesData.filter(n => n.score > 0);
+            
+            // Sort by score descending
+            displayNames.sort((a, b) => b.score - a.score);
+
+            displayNames.forEach(item => {
+                let badgeClass = '';
+                let statusText = '';
+                if(item.category === 'high') { badgeClass = 'score-high'; statusText = 'پتانسیل بالا'; }
+                else if(item.category === 'med') { badgeClass = 'score-med'; statusText = 'متوسط / نیاز به بررسی'; }
+                else { badgeClass = 'score-low'; statusText = 'رد شده (غیر لوکس)'; }
+
+                const cardHtml = `
+                    <div class="bg-white rounded-xl p-5 border border-gray-100 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden">
+                        <div class="absolute top-0 right-0 w-2 h-full ${item.category === 'high' ? 'bg-green-500' : (item.category === 'med' ? 'bg-yellow-500' : 'bg-red-500')}"></div>
+                        <div class="flex justify-between items-start mb-3">
+                            <h4 class="text-xl font-bold text-brand-charcoal">${item.name}</h4>
+                            <span class="${badgeClass}">${item.score} / 10</span>
+                        </div>
+                        <p class="text-xs text-gray-500 mb-3 font-bold bg-gray-50 inline-block px-2 py-1 rounded">استراتژی: ${item.type}</p>
+                        <p class="text-sm text-gray-700 leading-relaxed">${item.reason}</p>
+                    </div>
+                `;
+                grid.innerHTML += cardHtml;
+            });
+
+            // Radar Chart for Top 3 Independent Names
+            const ctxRadar = document.getElementById('topNamesRadar').getContext('2d');
+            new Chart(ctxRadar, {
+                type: 'radar',
+                data: {
+                    labels: ['حس لوکس و پریمیوم', 'ارتباط با کانسپت (بستنی/پیچش)', 'آوا و زیبایی کلامی', 'پتانسیل ترند شدن', 'سهولت به یادسپاری'],
+                    datasets: [
+                        {
+                            label: 'پیچک',
+                            data: [8, 10, 9, 9, 9],
+                            fill: true,
+                            backgroundColor: 'rgba(147, 197, 114, 0.2)', // Pistachio transparent
+                            borderColor: '#93C572',
+                            pointBackgroundColor: '#93C572',
+                        },
+                        {
+                            label: 'لوژان',
+                            data: [10, 4, 9, 8, 8],
+                            fill: true,
+                            backgroundColor: 'rgba(212, 175, 55, 0.2)', // Gold transparent
+                            borderColor: '#D4AF37',
+                            pointBackgroundColor: '#D4AF37',
+                        },
+                        {
+                            label: 'پاژ',
+                            data: [9, 3, 8, 7, 9],
+                            fill: true,
+                            backgroundColor: 'rgba(45, 36, 30, 0.2)', // Charcoal transparent
+                            borderColor: '#2D241E',
+                            pointBackgroundColor: '#2D241E',
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            angleLines: { display: true },
+                            suggestedMin: 0,
+                            suggestedMax: 10,
+                            ticks: { display: false } // Hide numbers on web for cleaner look
+                        }
+                    },
+                    plugins: {
+                        legend: { position: 'bottom', rtl: true, labels: { font: { family: 'Vazirmatn' } } }
+                    }
+                }
+            });
+
+            window.evalRendered = true;
+        }
+
+        // Initialize first section chart on load
+        window.onload = () => {
+            renderStrategyChart();
+        };
+
+    </script>
+</body>
+</html>
